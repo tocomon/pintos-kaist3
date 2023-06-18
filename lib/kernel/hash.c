@@ -21,9 +21,6 @@ static void rehash (struct hash *);
 
 /* Initializes hash table H to compute hash values using HASH and
    compare hash elements using LESS, given auxiliary data AUX. */
-/* 보조 데이터 AUX를 사용하여 해시 테이블 H를 초기화합니다.
- * 해시 값을 계산하기 위해 HASH를 사용하고, 해시 요소를 비교하기 위해
- * LESS를 사용합니다. */
 bool
 hash_init (struct hash *h,
 		hash_hash_func *hash, hash_less_func *less, void *aux) {
@@ -243,11 +240,9 @@ hash_empty (struct hash *h) {
 #define FNV_64_BASIS 0xcbf29ce484222325UL
 
 /* Returns a hash of the SIZE bytes in BUF. */
-/* BUF에서 SIZE 바이트의 해시를 반환합니다. */
 uint64_t
 hash_bytes (const void *buf_, size_t size) {
 	/* Fowler-Noll-Vo 32-bit hash, for bytes. */
-	/* 바이트에 대한 Fowler-Noll-Vo 32비트 해시입니다. */
 	const unsigned char *buf = buf_;
 	uint64_t hash;
 

@@ -11,7 +11,7 @@ uint64_t *pml4e_walk (uint64_t *pml4, const uint64_t va, int create);
 uint64_t *pml4_create (void);
 bool pml4_for_each (uint64_t *, pte_for_each_func *, void *);
 void pml4_destroy (uint64_t *pml4);
-void pml4_activate (uint64_t *pml4);  
+void pml4_activate (uint64_t *pml4);
 void *pml4_get_page (uint64_t *pml4, const void *upage);
 bool pml4_set_page (uint64_t *pml4, void *upage, void *kpage, bool rw);
 void pml4_clear_page (uint64_t *pml4, void *upage);

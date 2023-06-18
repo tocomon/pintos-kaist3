@@ -11,8 +11,6 @@
 
 /* Halts the OS, printing the source file name, line number, and
  * function name, plus a user-specific message. */
-/* 운영 체제를 중지하고, 소스 파일 이름, 라인 번호, 함수 이름 및 
- * 사용자 지정 메시지를 출력합니다. */
 #define PANIC(...) debug_panic (__FILE__, __LINE__, __func__, __VA_ARGS__)
 
 void debug_panic (const char *file, int line, const char *function,

@@ -1,17 +1,6 @@
 {
     "files.associations": {
         "*.inc": "c",
-        "syscall.h": "c",
-        "palloc.h": "c",
-        "thread.h": "c",
-        "hash.h": "c",
-        "vector": "c",
-        "memory": "c",
-        "optional": "c",
-        "string_view": "c",
-        "system_error": "c",
-        "list.h": "c",
-        "mmu.h": "c",
-        "vaddr.h": "c"
+        "syscall.h": "c"
     }
 }
