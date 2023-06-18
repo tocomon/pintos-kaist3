@@ -26,7 +26,7 @@
 #define PDPE(la) ((((uint64_t) (la)) >> PDPESHIFT) & 0x1FF)
 #define PDX(la)  ((((uint64_t) (la)) >> PDXSHIFT) & 0x1FF)
 #define PTX(la)  ((((uint64_t) (la)) >> PTXSHIFT) & 0x1FF)
-#define PTE_ADDR(pte) ((uint64_t) (pte) & ~0xFFF)
+#define PTE_ADDR(pte) ((uint64_t) (pte) & ~0xFFF)  //PTE에서 물리 주소를 추출
 
 /* The important flags are listed below.
    When a PDE or PTE is not "present", the other flags are

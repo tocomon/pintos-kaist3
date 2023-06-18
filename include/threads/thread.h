@@ -5,6 +5,9 @@
 #include <list.h>
 #include <stdint.h>
 #include "threads/interrupt.h"
+#define VM
+#define USERPROG
+
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -96,7 +99,7 @@ struct thread {
 	enum thread_status status;          /* Thread state. */
 	char name[16];                      /* Name (for debugging purposes). */
 	int priority;                       /* Priority. */
-	int64_t wakeup_tick;					/* 깨워주기 위한 값 */
+	int64_t wakeup_tick;				/* 깨워주기 위한 값 */
 
 	/* Shared between thread.c and synch.c. */
 	struct list_elem elem;              /* List element. */
