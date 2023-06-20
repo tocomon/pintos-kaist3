@@ -61,6 +61,11 @@ pdpe_walk (uint64_t *pdpe, const uint64_t va, int create) {
  * on CREATE.  If CREATE is true, then a new page table is
  * created and a pointer into it is returned.  Otherwise, a null
  * pointer is returned. */
+/* 가상 주소 VADDR의 페이지 맵 레벨 4, pml4의 페이지 테이블 엔트리
+ * 주소를 반환합니다. PML4E가 VADDR에 대한 페이지 테이블을 가지고 있
+ * 지 않은 경우, 동작은 CREATE에 따라 달라집니다.CREATE가 true인 경
+ * 우, 새로운 페이지 테이블이 생성되고 그 안의 포인터가 반환됩니다.
+ * 그렇지 않은 경우에는 null 포인터가 반환됩니다. */
 uint64_t *
 pml4e_walk (uint64_t *pml4e, const uint64_t va, int create) {
 	uint64_t *pte = NULL;

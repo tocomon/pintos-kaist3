@@ -94,7 +94,7 @@ hash_insert (struct hash *h, struct hash_elem *new) {
 	struct hash_elem *old = find_elem (h, bucket, new);
 
 	if (old == NULL)
-		insert_elem (h, bucket, new);
+		insert_elem (h, bucket, new);  
 
 	rehash (h);
 

@@ -143,6 +143,9 @@ bss_init (void) {
 /* Populates the page table with the kernel virtual mapping,
  * and then sets up the CPU to use the new page directory.
  * Points base_pml4 to the pml4 it creates. */
+/* 페이지 테이블을 커널 가상 매핑으로 채우고,
+ * CPU를 새로운 페이지 디렉토리를 사용하도록 설정합니다.
+ * base_pml4를 생성한 pml4로 지정합니다. */
 static void
 paging_init (uint64_t mem_end) {
 	uint64_t *pml4, *pte;

@@ -259,6 +259,12 @@ palloc_init (void) {
    then the pages are filled with zeros.  If too few pages are
    available, returns a null pointer, unless PAL_ASSERT is set in
    FLAGS, in which case the kernel panics. */
+/* 연속된 PAGE_CNT 개의 빈 페이지를 얻어와서 반환합니다.
+ * PAL_USER 플래그가 설정되어 있으면 페이지는 사용자 풀에서 얻어집
+ * 니다. 그렇지 않으면 커널 풀에서 얻어집니다. FLAGS에 PAL_ZERO 플
+ * 래그가 설정되어 있으면 페이지는 0으로 채워집니다.사용 가능한 페
+ * 이지가 충분하지 않으면 NULL 포인터를 반환합니다. 단, FLAGS에 
+ * PAL_ASSERT 플래그가 설정되어 있으면 커널이 패닉 상태가 됩니다.*/
 void *
 palloc_get_multiple (enum palloc_flags flags, size_t page_cnt) {
 	struct pool *pool = flags & PAL_USER ? &user_pool : &kernel_pool;
@@ -291,6 +297,12 @@ palloc_get_multiple (enum palloc_flags flags, size_t page_cnt) {
    then the page is filled with zeros.  If no pages are
    available, returns a null pointer, unless PAL_ASSERT is set in
    FLAGS, in which case the kernel panics. */
+/* 빈 페이지를 얻어와서 커널 가상 주소를 반환합니다.
+ * PAL_USER 플래그가 설정되어 있으면 페이지는 사용자 풀에서 얻어집
+ * 니다. 그렇지 않으면 커널 풀에서 얻어집니다.FLAGS에 PAL_ZERO 플래
+ * 그가 설정되어 있으면 페이지는 0으로 채워집니다. 사용 가능한 페이
+ * 지가 없으면 NULL 포인터를 반환합니다. 단, FLAGS에 PAL_ASSERT 플
+ * 래그가 설정되어 있으면 커널이 패닉 상태가 됩니다. */
 void *
 palloc_get_page (enum palloc_flags flags) {
 	return palloc_get_multiple (flags, 1);
