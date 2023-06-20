@@ -29,6 +29,7 @@
 #define pg_round_up(va) ((void *) (((uint64_t) (va) + PGSIZE - 1) & ~PGMASK))
 
 /* Round down to nearest page boundary. */
+// 매크로 가상 주소 va를 페이지 크기로 내림하여 정렬된 주소를 반환한다
 #define pg_round_down(va) (void *) ((uint64_t) (va) & ~PGMASK)
 
 /* Kernel virtual address start */

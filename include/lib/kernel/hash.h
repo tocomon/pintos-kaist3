@@ -25,7 +25,9 @@
 #include <stdint.h>
 #include "list.h"
 
-/* Hash element. */
+/* 해시테이블에서 사용되는 해시 요소를 정의하는 부분 
+	각 해시 요소는 연결 리스트의 요소를 포함하여 해당 버킷에 속하는 다른 요소들과 연결된다.
+ */  
 struct hash_elem {
 	struct list_elem list_elem;
 };

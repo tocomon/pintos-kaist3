@@ -2,13 +2,13 @@
 #define VM_VM_H
 #include <stdbool.h>
 #include "threads/palloc.h"
-
+#include "include/lib/kernel/hash.h"
 enum vm_type {
-	/* page not initialized */
+	/* 초기화 되지 않은 페이지를 나타내는 값*/
 	VM_UNINIT = 0,
-	/* page not related to the file, aka anonymous page */
+	/* 파일과 관련이 없는 페이지 == 익명 페이지 */
 	VM_ANON = 1,
-	/* page that realated to the file */
+	/* 파일과 관련된 페이지 */
 	VM_FILE = 2,
 	/* page that hold the page cache, for project 4 */
 	VM_PAGE_CACHE = 3,
@@ -36,17 +36,22 @@ struct thread;
 
 #define VM_TYPE(type) ((type) & 7)
 
+struct supplemental_page_table {
+	struct hash spt_hash;
+};
 /* The representation of "page".
  * This is kind of "parent class", which has four "child class"es, which are
  * uninit_page, file_page, anon_page, and page cache (project4).
  * DO NOT REMOVE/MODIFY PREDEFINED MEMBER OF THIS STRUCTURE. */
+/*---------------page-----------------------*/
 struct page {
 	const struct page_operations *operations;
 	void *va;              /* Address in terms of user space */
 	struct frame *frame;   /* Back reference for frame */
 
 	/* Your implementation */
-
+	/* 내가 추가*/
+	struct hash_elem hash_elem; // 해당 페이지가 속해 있는 해시 테이블에 연결시켜주는 해시 테이블 요소
 	/* Per-type data are binded into the union.
 	 * Each function automatically detects the current union */
 	union {
@@ -85,6 +90,7 @@ struct page_operations {
  * We don't want to force you to obey any specific design for this struct.
  * All designs up to you for this. */
 struct supplemental_page_table {
+	struct hash spt_hash;
 };
 
 #include "threads/thread.h"

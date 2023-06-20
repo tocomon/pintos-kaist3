@@ -239,7 +239,7 @@ hash_empty (struct hash *h) {
 #define FNV_64_PRIME 0x00000100000001B3UL
 #define FNV_64_BASIS 0xcbf29ce484222325UL
 
-/* Returns a hash of the SIZE bytes in BUF. */
+/* BUF의 size바이트에 대한 해시값을 반환 */
 uint64_t
 hash_bytes (const void *buf_, size_t size) {
 	/* Fowler-Noll-Vo 32-bit hash, for bytes. */
@@ -275,7 +275,7 @@ uint64_t
 hash_int (int i) {
 	return hash_bytes (&i, sizeof i);
 }
-
+
 /* Returns the bucket in H that E belongs in. */
 static struct list *
 find_bucket (struct hash *h, struct hash_elem *e) {

@@ -125,7 +125,7 @@ struct thread {
 	/* Owned by userprog/process.c. */
 	uint64_t *pml4;                     /* Page map level 4 */
 #endif
-#ifdef VM
+#ifdef VM // VM이라는 심볼이 정의 되어 있는 경우에만 해당 코드 블록이 컴파일되고 실행된다.
 	/* Table for whole virtual memory owned by thread. */
 	struct supplemental_page_table spt;
 #endif
@@ -175,4 +175,4 @@ bool sleep_sort(const struct list_elem *a_, const struct list_elem *b_, void *au
 void wake_up(int64_t ticks);
 void preemptive();
 
-#endif /* threads/thread.h */
+#endif /* THREADS_THREAD_H */

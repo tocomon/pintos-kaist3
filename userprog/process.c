@@ -62,12 +62,15 @@ tid_t process_create_initd(const char *file_name)
 	return tid;
 }
 
-/* A thread function that launches first user process. */
+/* 첫 번째 프로세스를 실행하는 역할*/
 static void
 initd(void *f_name)
 {
 #ifdef VM
 	supplemental_page_table_init(&thread_current()->spt);
+	// 스레드 구조체에 spt라는 이름의 멤버 변수가 있다면
+	// 현재 실행중인 스레드(thread_current())의 spt멤버 변수를 가리키는 포인터 , 이포인터가 supplemental_page_table_init함수에 인자로 전달
+	//현재 스레드의 보조 페이지 테이블을 초기화
 #endif
 
 	process_init();
