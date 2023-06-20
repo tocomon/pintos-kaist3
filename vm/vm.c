@@ -87,7 +87,6 @@ err:
 /* spt 및 return 페이지에서 VA를 찾습니다. 오류가 발생하면 NULL을 반환합니다. */
 struct page *
 spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
-	struct page *page = NULL;
 	/* TODO: Fill this function. */
 	struct page *page = (struct page *)malloc(sizeof(struct page));
 	struct hash_elem *e;
@@ -196,7 +195,10 @@ bool
 vm_claim_page (void *va UNUSED) {
 	struct page *page = NULL;
 	/* TODO: Fill this function */
-
+	// spt에서 va에 해당하는 page 찾기
+	page = spt_find_page(&thread_current()->spt,va);
+	if(page==NULL)
+		return false;
 	return vm_do_claim_page (page);
 }
 
@@ -211,7 +213,7 @@ vm_do_claim_page (struct page *page) {
 	page->frame = frame;
 
 	/* TODO: Insert page table entry to map page's VA to frame's PA. */
-       // 가상 주소와 물리 주소를 매핑
+    // 가상 주소와 물리 주소를 매핑
     struct thread *current = thread_current();
     pml4_set_page(current->pml4, page->va, frame->kva, page->writable);
 	

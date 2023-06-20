@@ -18,11 +18,11 @@ enum vm_type {
 
 	/* Auxillary bit flag marker for store information. You can add more
 	 * markers, until the value is fit in the int. */
-	VM_MARKER_0 = (1 << 3),
-	VM_MARKER_1 = (1 << 4),
+	VM_MARKER_0 = (1 << 3),	//8배
+	VM_MARKER_1 = (1 << 4), //16배
 
 	/* DO NOT EXCEED THIS VALUE. */
-	VM_MARKER_END = (1 << 31),
+	VM_MARKER_END = (1 << 31),	//32비트에서 제일 높은 비트
 };
 
 #include "vm/uninit.h"
@@ -96,7 +96,13 @@ struct page_operations {
 struct supplemental_page_table {
 	struct hash spt_hash;				/* hash table */
 };
-
+/* load_segment에 사용될 구조체. for loading */
+// struct lazy_load_arg {
+// 		file *file;
+// 		void offsetof;
+// 		read_bytes;
+// 		zero_bytes;
+// }
 #include "threads/thread.h"
 void supplemental_page_table_init (struct supplemental_page_table *spt);
 bool supplemental_page_table_copy (struct supplemental_page_table *dst,
