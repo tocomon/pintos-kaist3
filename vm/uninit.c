@@ -34,7 +34,7 @@ uninit_new (struct page *page, void *va, vm_initializer *init,
 		.va = va,
 		.frame = NULL, /* no frame for now */
 		.uninit = (struct uninit_page) {
-			.init = init,	// lazy_load_segment
+			.init = init,	// lazy_load_segment가 담긴다.(load_segment부터)
 			.type = type,
 			.aux = aux,
 			.page_initializer = initializer,	// anon_initializer | file_backed_initializer
@@ -43,15 +43,21 @@ uninit_new (struct page *page, void *va, vm_initializer *init,
 }
 
 /* Initalize the page on first fault */
+/* page fault가 처음 발생했을 때, 페이지를 초기화 */
 static bool
 uninit_initialize (struct page *page, void *kva) {
+	/* 인수로 받은 페이지에 union member인 uninit을 저장 */
 	struct uninit_page *uninit = &page->uninit;
 
 	/* Fetch first, page_initialize may overwrite the values */
-	vm_initializer *init = uninit->init;
-	void *aux = uninit->aux;
+	/* page_initializer 함수가 값을 덮어쓸 수 있으므로 이전에
+	 * 가져온 값들을 먼저 저장해야 함 */
+	vm_initializer *init = uninit->init;	//lazy_load_segment 호출
+	void *aux = uninit->aux;				//lazy_load_arg
 
 	/* TODO: You may need to fix this function. */
+	/* uninit->page_initializer는 page를 초기화하고, pa를 va에 매핑 */
+	/* kva는 uninit_new에서 va로 받은 커널 가상 주소? */
 	return uninit->page_initializer (page, uninit->type, kva) &&
 		(init ? init (page, aux) : true);
 }

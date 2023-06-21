@@ -43,6 +43,8 @@ static struct frame *vm_evict_frame (void);
 /* Create the pending page object with initializer. If you want to create a
  * page, do not create it directly and make it through this function or
  * `vm_alloc_page`. */
+/* 초기화를 포함한 대기 중인 페이지 객체를 생성합니다. 페이지를 생성하려면 
+ * 직접 생성하지 말고 이 함수 vm_alloc_page를 통해 만드세요. */
 bool
 vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		vm_initializer *init, void *aux) {
@@ -62,11 +64,11 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		// 2) type에 따라 초기화 함수를 가져와서
 		bool(*page_initializer)(struct page*, enum vm_type, void*);
 
-		switch(VM_TYPE(type)) {
-			case VM_ANON:
+		switch(VM_TYPE(type)) {	//최하위 bit 3개 추출
+			case VM_ANON:	//001
 			page_initializer = anon_initializer;
 			break;
-			case VM_FILE:
+			case VM_FILE:	//010
 			page_initializer = file_backed_initializer;
 			break;
 		}
@@ -216,7 +218,8 @@ vm_do_claim_page (struct page *page) {
     // 가상 주소와 물리 주소를 매핑
     struct thread *current = thread_current();
     pml4_set_page(current->pml4, page->va, frame->kva, page->writable);
-	
+	/* 첫번째 page_fault에서 이어지는 vm_do_claim_page인 경우
+	 * 페이지가 실제로 로딩될 때 호출되는 swap_in은 uninit */
 	return swap_in (page, frame->kva); // uninit_initialize
 }
 

@@ -35,6 +35,9 @@ struct hash_elem {
  * name of the outer structure STRUCT and the member name MEMBER
  * of the hash element.  See the big comment at the top of the
  * file for an example. */
+/* 포인터 HASH_ELEM를 포함하고 있는 구조체 STRUCT로 변환합니다.
+ * 해시 요소의 멤버 이름은 MEMBER입니다.파일 상단의 큰 주석에
+ * 서 예제를 참조하세요. */
 #define hash_entry(HASH_ELEM, STRUCT, MEMBER)                   \
 	((STRUCT *) ((uint8_t *) &(HASH_ELEM)->list_elem        \
 		- offsetof (STRUCT, MEMBER.list_elem)))
