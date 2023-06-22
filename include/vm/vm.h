@@ -96,13 +96,7 @@ struct page_operations {
 struct supplemental_page_table {
 	struct hash spt_hash;				/* hash table */
 };
-/* load_segment에 사용될 구조체. for loading */
-// struct lazy_load_arg {
-// 		file *file;
-// 		void offsetof;
-// 		read_bytes;
-// 		zero_bytes;
-// }
+
 #include "threads/thread.h"
 void supplemental_page_table_init (struct supplemental_page_table *spt);
 bool supplemental_page_table_copy (struct supplemental_page_table *dst,

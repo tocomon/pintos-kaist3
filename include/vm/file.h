@@ -6,7 +6,12 @@
 struct page;
 enum vm_type;
 
+/* load segment에 두번째 인수로 사용 */
 struct file_page {
+	struct file *file;
+	off_t offset;
+	off_t read_bytes;
+	off_t zero_bytes;
 };
 
 void vm_file_init (void);

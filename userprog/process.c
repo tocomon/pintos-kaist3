@@ -700,6 +700,21 @@ lazy_load_segment(struct page *page, void *aux)
 	/* TODO: Load the segment from the file */
 	/* TODO: This called when the first page fault occurs on address VA. */
 	/* TODO: VA is available when calling this function. */
+	struct file_page *fp = (struct file_page *)aux;
+
+	// 1) 파일의 position을 ofs으로 지정한다.
+	file_seek(fp->file, fp->offset);
+	
+	// 2) 파일을 read_bytes만큼 물리 프레임에 읽어 들인다.
+	if (file_read(fp->file, page->frame->kva, fp->read_bytes) != (int)(fp->read_bytes))
+	{
+		palloc_free_page(page->frame->kva);
+		return false;
+	}
+	// 3) 다 읽은 지점부터 zero_bytes만큼 0으로 채운다.
+	memset(page->frame->kva + fp->read_bytes, 0, fp->zero_bytes);
+
+	return true;	
 }
 
 /* Loads a segment starting at offset OFS in FILE at address
@@ -716,6 +731,20 @@ lazy_load_segment(struct page *page, void *aux)
  *
  * Return true if successful, false if a memory allocation error
  * or disk read error occurs. */
+
+/* 파일 내의 오프셋 OFS에서 시작하여 주소 UPAGE에 있는 세그먼트를 로드합니다.
+ * 총 READ_BYTES + ZERO_BYTES 바이트의 가상 메모리가 다음과 같이 초기화됩니다:
+ *
+ * - UPAGE에서 READ_BYTES 바이트는 파일의 OFS 오프셋에서 시작하여 읽어와야 합니다.
+ *
+ * - UPAGE + READ_BYTES에서 ZERO_BYTES 바이트는 0으로 초기화되어야 합니다.
+ *
+ * 이 함수에 의해 초기화된 페이지는 WRITABLE이 true인 경우 사용자 프로세스에
+ * 의해 쓰기 가능해야 하며, 그렇지 않으면 읽기 전용이어야 합니다.
+ *
+ * 메모리 할당 오류 또는 디스크 읽기 오류가 발생하면 false를 반환하고, 성공
+ * 한 경우 true를 반환합니다. */
+
 static bool
 load_segment(struct file *file, off_t ofs, uint8_t *upage,
 			 uint32_t read_bytes, uint32_t zero_bytes, bool writable)
@@ -730,7 +759,7 @@ load_segment(struct file *file, off_t ofs, uint8_t *upage,
 		 * We will read PAGE_READ_BYTES bytes from FILE
 		 * and zero the final PAGE_ZERO_BYTES bytes. */
 		/* 이 페이지를 채우는 방법을 계산합니다. 파일에서
-		 * PAGE_READ_BYTES 만큼 읽고	나머지 PAGE_ZERO_BYTES
+		 * PAGE_READ_BYTES 만큼 읽고 나머지 PAGE_ZERO_BYTES
 		 * 만큼 0으로 채웁니다. */
 		// 최대로 읽을 수 있는 크기는 PGSIZE
 		size_t page_read_bytes = read_bytes < PGSIZE ? read_bytes : PGSIZE;
@@ -740,15 +769,15 @@ load_segment(struct file *file, off_t ofs, uint8_t *upage,
 		/* vm_alloc_page_with_initializer에 제공할 aux 인수로 필요한 보조 값
 		 * 들을 설정해야 합니다. */
 		/* loading을 위해 필요한 정보를 포함하는 구조체를 만들어야 합니다. */
-		struct lazy_load_arg *lazy_load_arg = (lazy_load_arg*)malloc(sizeof(lazy_load_arg));
-		lazy_load_arg->file = file;					 // 내용이 담긴 파일 객체
-		lazy_load_arg->ofs = ofs;					 // 이 페이지에서 읽기 시작할 위치
-		lazy_load_arg->read_bytes = page_read_bytes; // 이 페이지에서 읽어야 하는 바이트 수
-		lazy_load_arg->zero_bytes = page_zero_bytes; // 이 페이지에서 read_bytes만큼 읽고 공간이 남아 0으로 채워야 하는 바이트 수
+		struct file_page *fp = (*file_page)malloc(sizeof(file_page));
+		fp->file = file;	// 내용이 담긴 파일 객체
+		fp->offset = ofs;	// 이 페이지에서 읽기 시작할 위치
+		fp->read_bytes = page_read_bytes;	// 이 페이지에서 읽어야 하는 바이트 수
+		fp->zero_bytes = page_zero_bytes;	// 이 페이지에서 read_bytes만큼 읽고 공간이 남아 0으로 채워야 하는 바이트 수
 
 		// vm_alloc_page_with_initializer를 호출하여 대기 중인 객체를 생성합니다.
 		if (!vm_alloc_page_with_initializer(VM_ANON, upage,
-											writable, lazy_load_segment, lazy_load_arg))
+											writable, lazy_load_segment, fp))
 			return false;
 
 		/* Advance. */

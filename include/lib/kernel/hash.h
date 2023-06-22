@@ -19,7 +19,7 @@
  * that contains it.  This is the same technique used in the
  * linked list implementation.  Refer to lib/kernel/list.h for a
  * detailed explanation. */
-
+  
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

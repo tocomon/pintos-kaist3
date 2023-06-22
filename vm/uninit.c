@@ -53,7 +53,7 @@ uninit_initialize (struct page *page, void *kva) {
 	/* page_initializer 함수가 값을 덮어쓸 수 있으므로 이전에
 	 * 가져온 값들을 먼저 저장해야 함 */
 	vm_initializer *init = uninit->init;	//lazy_load_segment 호출
-	void *aux = uninit->aux;				//lazy_load_arg
+	void *aux = uninit->aux;				//fp를 aux에 저장
 
 	/* TODO: You may need to fix this function. */
 	/* uninit->page_initializer는 page를 초기화하고, pa를 va에 매핑 */
