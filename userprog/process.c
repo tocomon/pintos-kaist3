@@ -428,6 +428,11 @@ static bool load_segment(struct file *file, off_t ofs, uint8_t *upage,
  * Stores the executable's entry point into *RIP
  * and its initial stack pointer into *RSP.
  * Returns true if successful, false otherwise. */
+/* FILE_NAME에서 ELF 실행 파일을 현재 스레드에 로드합니다.
+ * 실행 파일의 진입점은 *RIP에 저장되며,
+ * 초기 스택 포인터는 *RSP에 저장됩니다.
+ * 성공하면 true를 반환하고, 그렇지 않으면 false를 반환합니다. */
+
 static bool
 load(const char *file_name, struct intr_frame *if_)
 {
@@ -769,7 +774,7 @@ load_segment(struct file *file, off_t ofs, uint8_t *upage,
 		/* vm_alloc_page_with_initializer에 제공할 aux 인수로 필요한 보조 값
 		 * 들을 설정해야 합니다. */
 		/* loading을 위해 필요한 정보를 포함하는 구조체를 만들어야 합니다. */
-		struct file_page *fp = (*file_page)malloc(sizeof(file_page));
+		struct file_page *fp = (struct file_page*)malloc(sizeof(struct file_page));
 		fp->file = file;	// 내용이 담긴 파일 객체
 		fp->offset = ofs;	// 이 페이지에서 읽기 시작할 위치
 		fp->read_bytes = page_read_bytes;	// 이 페이지에서 읽어야 하는 바이트 수
@@ -795,6 +800,8 @@ static bool
 setup_stack(struct intr_frame *if_)
 {
 	bool success = false;
+	/* 스택은 아래로 성장하므로, USER_STACK에서 PGSIZE만큼 아래로 
+	내린 지점에서 페이지를 생성한다. */
 	void *stack_bottom = (void *)(((uint8_t *)USER_STACK) - PGSIZE);
 
 	/* TODO: Map the stack on stack_bottom and claim the page immediately.
@@ -802,6 +809,17 @@ setup_stack(struct intr_frame *if_)
 	 * TODO: You should mark the page is stack. */
 	/* TODO: Your code goes here */
 
+	// 1) stack_bottom에 페이지를 하나 할당받는다.
+	if (vm_alloc_page(VM_ANON|VM_MARKER_0,stack_bottom, 1))
+	// VM_MARKER_0: 스택이 저장된 메모리 페이지임을 식별하기 위해 추가
+	// writable: argument_stack()에서 값을 넣어야 하니 True
+	{
+		// 2)할당 받은 페이지에 바로 물리 프레임을 매핑한다.
+		success = vm_claim_page(stack_bottom);
+		if(success)
+		// 3)rsp를 변경한다.(argument_stack에서 이 위치부터 인자를 push한다.)
+			if_->rsp = USER_STACK;
+	}
 	return success;
 }
 #endif /* VM */

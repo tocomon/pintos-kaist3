@@ -127,6 +127,9 @@ page_fault (struct intr_frame *f) {
 	   accessed to cause the fault.  It may point to code or to
 	   data.  It is not necessarily the address of the instruction
 	   that caused the fault (that's f->rip). */
+	/* faulting 주소를 얻으세요. 이는 오류를 발생시킨 가상 주소입니다.
+	 * 코드나 데이터를 가리킬 수 있습니다. 이는 반드시 오류를 발생
+	 * 시킨 명령어의 주소 (f->rip) 가 아닙니다. */
 
 	fault_addr = (void *) rcr2();
 
@@ -139,15 +142,13 @@ page_fault (struct intr_frame *f) {
 	not_present = (f->error_code & PF_P) == 0;
 	write = (f->error_code & PF_W) != 0;
 	user = (f->error_code & PF_U) != 0;
-
-	exit(-1);
 	
 #ifdef VM
 	/* For project 3 and later. */
 	if (vm_try_handle_fault (f, fault_addr, user, write, not_present))
 		return;
 #endif
-
+	exit(-1);	//무조건 빠지는 곳 설정
 	/* Count page faults. */
 	page_fault_cnt++;
 

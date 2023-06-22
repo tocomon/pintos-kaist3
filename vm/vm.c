@@ -7,6 +7,10 @@
 /*---Project 3---*/
 struct list frame_table;
 
+static bool validate_fault(void *addr, bool user, bool not_present);
+unsigned page_hash(const struct hash_elem *p_, void *aux UNUSED);
+bool page_less(const struct hash_elem *a_, const struct hash_elem *b_, void *aux UNUSED);
+
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
 void
@@ -99,8 +103,8 @@ spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 	해당 spt의 hash 테이블 구조체를 인자로 넣자. 해당 해시 테이블에서 찾아야 하니까.
 	근데 우리가 받은 건 va 뿐이다. 근데 hash_find()는 hash_elem을 인자로 받아야 하니
 	dummy page 하나를 만들고 그것의 가상주소를 va로 만들어. 그 다음 이 페이지의 hash
-	_elem을 넣는다.
-	*/
+	_elem을 넣는다. */
+	
 	// va에 해당하는 hash_elem 찾기
     page->va = va;
     e = hash_find(&spt, &page->hash_elem);
@@ -174,6 +178,7 @@ static bool
 vm_handle_wp (struct page *page UNUSED) {
 }
 
+// Page Fault Handler
 /* Return true on success */
 bool
 vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
@@ -182,7 +187,31 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	struct page *page = NULL;
 	/* TODO: Validate the fault */
 	/* TODO: Your code goes here */
+
+	//validate_fault라는 유효성 검사 함수를 따로 구현
+	if (!validate_fault(addr, user, not_present))
+        return false;
+	// addr to page addr, abs??
+    void *va = pg_round_down(addr);
+    page = spt_find_page(spt, va);
+	
+	// fault가 발생한 page VA 찾기
+	page = spt_find_page(spt, addr);
+
 	return vm_do_claim_page (page);
+}
+
+static bool validate_fault(void *addr, bool user, bool not_present)
+{
+    if (!not_present)
+        return false;
+
+    if (is_kernel_vaddr(addr) && user)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 /* Free the page.
@@ -267,11 +296,6 @@ supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
 	hash_init(&spt->spt_hash, page_hash, page_less, NULL);
 }
 
-/*---Project 3: VM ---*/
-unsigned page_hash(const struct hash_elem *p_, void *aux UNUSED) {
-	const struct page *p = hash_entry(p_, struct page, hash_elem);
-	return hash_bytes(&p->va, sizeof(p->va));
-}
 /* Copy supplemental page table from src to dst */
 bool
 supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
