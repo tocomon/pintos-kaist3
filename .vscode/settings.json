@@ -5,6 +5,7 @@
         "interrupt.h": "c",
         "vm.h": "c",
         "file.h": "c",
-        "thread.h": "c"
+        "thread.h": "c",
+        "vaddr.h": "c"
     }
 }

@@ -19,7 +19,7 @@
 #include "threads/vaddr.h"
 #include "intrinsic.h"
 #include "userprog/syscall.h"
-#define VM
+
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -719,7 +719,7 @@ lazy_load_segment(struct page *page, void *aux)
 	// 3) 다 읽은 지점부터 zero_bytes만큼 0으로 채운다.
 	memset(page->frame->kva + fp->read_bytes, 0, fp->zero_bytes);
 
-	return true;	
+	return true;
 }
 
 /* Loads a segment starting at offset OFS in FILE at address
