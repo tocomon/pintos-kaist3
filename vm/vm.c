@@ -7,7 +7,12 @@
 #include "threads/vaddr.h"
 
 /*---Project 3---*/
+#define USER_STACK_LIMIT (1 << 20)
+
 struct list frame_table;
+
+static struct list lru_list;
+static struct lock lru_lock;
 
 static bool validate_fault(void *addr, bool user, bool not_present);
 unsigned page_hash(const struct hash_elem *p_, void *aux UNUSED);
@@ -25,6 +30,8 @@ vm_init (void) {
 	register_inspect_intr ();
 	/* DO NOT MODIFY UPPER LINES. */
 	/* TODO: Your code goes here. */
+	list_init(&lru_list);
+    lock_init(&lru_lock);
 }
 
 /* Get the type of the page. This function is useful if you want to know the
