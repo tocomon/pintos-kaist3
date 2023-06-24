@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "threads/palloc.h"
 #include "lib/kernel/hash.h"
+
 enum vm_type {
 	/* page not initialized */
 	VM_UNINIT = 0,
@@ -112,5 +113,13 @@ bool vm_claim_page (void *va);
 enum vm_type page_get_type (struct page *page);
 
 static struct frame *vm_get_frame (void);
+
+unsigned page_hash (const struct hash_elem *p_, void *aux UNUSED);
+static unsigned page_less(const struct hash_elem *a, const struct hash_elem *b, void *aux);
+bool page_insert(struct hash *h, struct page *p);
+bool page_delete(struct hash *h, struct page *p);
+
+// #include "userprog/process.h"
+// static bool install_page(void *upage, void *kpage, bool writable);
 
 #endif  /* VM_VM_H */

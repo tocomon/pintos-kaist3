@@ -1,8 +1,10 @@
 /* vm.c: Generic interface for virtual memory objects. */
 
 #include "threads/malloc.h"
+#include "threads/vaddr.h"
 #include "vm/vm.h"
 #include "vm/inspect.h"
+#include "userprog/process.h"
 
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
@@ -38,6 +40,9 @@ static bool vm_do_claim_page (struct page *page);
 static struct frame *vm_evict_frame (void);
 
 struct list frame_table;
+
+bool install_page(void *upage, void *kpage, bool writable);
+
 
 /* Create the pending page object with initializer. If you want to create a
  * page, do not create it directly and make it through this function or
@@ -141,6 +146,14 @@ vm_get_frame (void) {
 
 	ASSERT (frame != NULL);
 	ASSERT (frame->page == NULL);
+	frame->kva = palloc_get_page(PAL_USER); // user pool에서 커널 가상 주소 공간으로 1page 할당
+	if (frame->kva == NULL) { // 유저 풀 공간이 하나도 없다면
+		frame = vm_evict_frame(); // frame에서 공간 내리고 새로 할당받아온다.
+		frame->page = NULL;
+		return frame;
+	}
+	list_push_back(&frame_table, &frame->frame_elem);
+	frame->page = NULL;
 	return frame;
 }
 
@@ -199,12 +212,13 @@ vm_do_claim_page (struct page *page) {
 	if(install_page(page->va, frame->kva, page->writable)) {
 		return swap_in(page, frame->kva);
 	}
-	return swap_in (page, frame->kva);
+	return false;
 }
 
 /* Initialize new supplemental page table */
 void
 supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
+	hash_init(&spt->spt_hash, page_hash, page_less, NULL);
 }
 
 /* Copy supplemental page table from src to dst */
@@ -251,26 +265,3 @@ bool page_delete(struct hash *h, struct page *p) {
 		return false;
 }
 
-void
-supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
-	hash_init(&spt->spt_hash, page_hash, page_less, NULL);
-}
-
-
-static struct frame *
-vm_get_frame (void) {
-	struct frame *frame = (struct frame *)malloc(sizeof(struct frame));
-	/* TODO: Fill this function. */
-	
-	ASSERT (frame != NULL);
-	ASSERT (frame->page == NULL);
-	frame->kva = palloc_get_page(PAL_USER); 
-	if (frame->kva == NULL) { 
-		frame = vm_evict_frame(); 
-		frame->page = NULL;
-		return frame;
-	}
-	list_push_back(&frame_table, &frame->frame_elem);
-	frame->page = NULL;
-	return frame;
-}
